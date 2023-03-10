@@ -12,8 +12,6 @@ namespace TheBookStore.Models.Authentication
         public string Password { get; set; }
         [Required(ErrorMessage = "ConfirmPassword is required!")]
         public string ConfirmPassword { get; set; }
-        [Required]
-        public string Role { get; set; }
 
     }
 

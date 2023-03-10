@@ -9,6 +9,7 @@ namespace TheBookStore.Repository
         public Task<ProductModel> getProductAsync(int id);
         public Task<int> AddProductAsync(ProductModel model);
         public Task UpdateProductAsync(int id ,ProductModel model);
-        public Task DeleteProductAsync(int id);       
+        public Task DeleteProductAsync(int id);
+        public Task<string> UploadImageAsync(IFormFile file, int id);
     }
 }

@@ -1,5 +1,8 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.DotNet.Scaffolding.Shared.CodeModifier.CodeChange;
 using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json;
+using RestSharp;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Policy;
@@ -7,6 +10,7 @@ using System.Text;
 using TheBookStore.Data;
 using TheBookStore.Migrations;
 using TheBookStore.Models.Authentication;
+using Method = RestSharp.Method;
 
 namespace TheBookStore.Repository
 {
@@ -15,24 +19,30 @@ namespace TheBookStore.Repository
         private readonly UserManager<ApplicationUser> userManager;
         private readonly SignInManager<ApplicationUser> signInManager;
         private readonly IConfiguration configuration;
-        private readonly RoleManager<ApplicationUser> roleManager;
+        private readonly RoleManager<IdentityRole> roleManager;
 
         public AccountRepository(UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
-            IConfiguration configuration, RoleManager<ApplicationUser> roleManager)
+            IConfiguration configuration, RoleManager<IdentityRole> roleManager)
         { 
             this.userManager = userManager;
             this.signInManager = signInManager;
             this.configuration = configuration;
-            this.roleManager = roleManager;
-
+            this.roleManager = roleManager;           
         }
         public async Task<string> SignInAsync(SignInModel model)
         {
+            string role = "User";
             var result = await signInManager.PasswordSignInAsync(model.Email, model.Password, false, false);
-            if (result.Succeeded)
+            if (!result.Succeeded)
             {
-                return string.Empty;
+                return null;
+            }
+            var user = await userManager.FindByEmailAsync(model.Email);
+            var userRole = await  userManager.GetRolesAsync(user);
+            if(userRole.Contains("Admin"))
+            {
+                role = "Admin";
             }
             var authClaims = new List<Claim> 
             {
@@ -40,33 +50,35 @@ namespace TheBookStore.Repository
                    new Claim(JwtRegisteredClaimNames.Jti ,Guid.NewGuid
                    ().ToString())           
             };
-            var authenKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JWT:Secret"]));
 
+            var authenKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JWT:Secret"]));
             var token = new JwtSecurityToken(
                 issuer: configuration["JWT:ValidIssuer"],
-                audience: configuration["JWT:ValidAudience"],
+                audience: role,
                 expires: DateTime.Now.AddMinutes(20),
                 claims: authClaims,
                 signingCredentials: new SigningCredentials(authenKey,SecurityAlgorithms.HmacSha256Signature)
                 );
             return new JwtSecurityTokenHandler().WriteToken(token);
-
         }
 
-        public async Task<IdentityResult> SignUpAsync(SignUpModel model)
+        public async Task<IdentityResult> SignUpAsync(SignUpModel model , string role)
         {
-            var newUser = new ApplicationUser
+
+            var userExist = userManager.FindByEmailAsync(model.Email).Result;
+            if (userExist == null)
             {
-                Name = model.Name,
-                Email = model.Email,
-                UserName = model.Email,
-            };
-            var role = roleManager.FindByNameAsync(model.Role).Result;
-            if (role != null)
-            {
-                IdentityResult roleresult = await userManager.AddToRoleAsync(newUser, role.Name);
-            }
-            return await userManager.CreateAsync(newUser);
-        }
+                var newUser = new ApplicationUser
+                {
+                    Name = model.Name,
+                    Email = model.Email,
+                    UserName = model.Email,
+                    SecurityStamp = Guid.NewGuid().ToString(),
+                };
+                IdentityResult userResult = await userManager.CreateAsync(newUser, model.Password);
+                IdentityResult roleresult = await userManager.AddToRoleAsync(newUser, role);
+                return userResult;
+            }else return null;    
+        }               
     }
 }

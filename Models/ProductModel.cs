@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TheBookStore.Models
 {
@@ -12,5 +13,8 @@ namespace TheBookStore.Models
         public double Price { get; set; }
         [Range(0, 100)]
         public int Quantity { get; set; }
+        public string? ImageUrl { get; set; }
+        public string? CategoryId { get; set; }
+
     }
 }

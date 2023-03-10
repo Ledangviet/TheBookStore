@@ -5,7 +5,7 @@ namespace TheBookStore.Repository
 {
     public interface IAccountRepository
     {
-        public Task<IdentityResult> SignUpAsync(SignUpModel model);
+        public Task<IdentityResult> SignUpAsync(SignUpModel model , string role);
         public Task<string> SignInAsync(SignInModel model);
     }
 }

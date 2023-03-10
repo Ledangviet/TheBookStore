@@ -54,5 +54,19 @@ namespace TheBookStore.Repository
                 await _context.SaveChangesAsync();
             }          
         }
+
+        public async Task<string> UploadImageAsync(IFormFile file,int id)
+        {
+            string url = "";
+            if (file != null)
+            {
+                string FileName = "product-" + id + ".png";
+                var path = Path.Combine(Directory.GetCurrentDirectory(), "Static/images", FileName);
+                var stream = new FileStream(path, FileMode.Create);
+                await file.CopyToAsync(stream);
+                 url = "~/images/detail/" + FileName;
+            }
+            return url;
+        }
     }
 }
