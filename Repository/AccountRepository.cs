@@ -62,6 +62,12 @@ namespace TheBookStore.Repository
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
+        public async Task<ApplicationUser> GetUserAsync(string username)
+        {
+            ApplicationUser user = await userManager.FindByEmailAsync(username);
+            return user;
+        }
+
         public async Task<IdentityResult> SignUpAsync(SignUpModel model , string role)
         {
 

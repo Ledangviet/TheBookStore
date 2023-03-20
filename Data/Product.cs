@@ -11,14 +11,14 @@ namespace TheBookStore.Data
 
         [Required]
         [MaxLength(100)]
-        public string Title { get; set; }
+        public string Title { get; set; } = string.Empty;
         [Required]
         public string? Description { get; set; }
         [Range(0, double.MaxValue)]
         public double Price { get; set; }
         [Range (0, 100)]
         public int Quantity { get; set; }
-        public string? ImageUrl { get; set; }
-        public string? Category { get; set; }
+        public string ImageUrl { get; set; } = "";
+        public string Category { get; set; } = "";
     }
 }

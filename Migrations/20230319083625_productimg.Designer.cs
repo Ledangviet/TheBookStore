@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TheBookStore.Data;
 
@@ -11,9 +12,10 @@ using TheBookStore.Data;
 namespace TheBookStore.Migrations
 {
     [DbContext(typeof(BookStoreDbContext))]
-    partial class BookStoreDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230319083625_productimg")]
+    partial class productimg
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -51,21 +53,21 @@ namespace TheBookStore.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "e389be4f-5a24-47df-99b0-3f658f0819e7",
+                            Id = "cb5c5a18-0096-42f0-8b18-055a7f8146b3",
                             ConcurrencyStamp = "1",
                             Name = "Admin",
                             NormalizedName = "Admin"
                         },
                         new
                         {
-                            Id = "214cb8bc-3324-4d74-8c83-86c3f6e3357d",
+                            Id = "f6a030a5-8a29-4497-bb7b-6ecb2f310e3b",
                             ConcurrencyStamp = "2",
                             Name = "User",
                             NormalizedName = "User"
                         },
                         new
                         {
-                            Id = "9c53cc5b-c6fe-4ef8-91c7-97c6d43c6fad",
+                            Id = "cf311c79-ef9f-4b93-a67b-fc9101e302d5",
                             ConcurrencyStamp = "3",
                             Name = "Dev",
                             NormalizedName = "Dev"
@@ -395,32 +397,6 @@ namespace TheBookStore.Migrations
                     b.ToTable("Product");
                 });
 
-            modelBuilder.Entity("TheBookStore.Data.ProductImage", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
-
-                    b.Property<int>("ProductId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Url")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ProductId");
-
-                    b.ToTable("ProductImages");
-                });
-
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -517,17 +493,6 @@ namespace TheBookStore.Migrations
                         .IsRequired();
 
                     b.Navigation("Order");
-
-                    b.Navigation("Product");
-                });
-
-            modelBuilder.Entity("TheBookStore.Data.ProductImage", b =>
-                {
-                    b.HasOne("TheBookStore.Data.Product", "Product")
-                        .WithMany()
-                        .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
 
                     b.Navigation("Product");
                 });

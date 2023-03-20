@@ -10,6 +10,7 @@ namespace TheBookStore.Helper
         {
             CreateMap<Product, ProductModel>().ReverseMap(); 
             CreateMap<Category, CategoryModel>().ReverseMap();
+            CreateMap<Cart, CartModel>().ReverseMap();
         }
     }
 }

@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using TheBookStore.Models;
 using TheBookStore.Repository;
 
-namespace TheBookStore.Controllers
+namespace TheBookStore.Controllers.Admin
 {
     [Route("api/[controller]")]
     [ApiController]
@@ -28,7 +28,7 @@ namespace TheBookStore.Controllers
                 return BadRequest();
             }
         }
-        [HttpGet] 
+        [HttpGet]
         public async Task<IActionResult> getAllCategory()
         {
             try

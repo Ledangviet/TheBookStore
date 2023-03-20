@@ -60,12 +60,18 @@ namespace TheBookStore.Repository
             string url = "";
             if (file != null)
             {
-                string FileName = "product-" + id + ".png";
+                string FileName = "product_" + id + ".png";
                 var path = Path.Combine(Directory.GetCurrentDirectory(), "Static/images", FileName);
                 var stream = new FileStream(path, FileMode.Create);
                 await file.CopyToAsync(stream);
-                 url = "~/images/detail/" + FileName;
+                 url = "Static/images/detail/" + FileName;
             }
+            var Image = new ProductImage();
+            Image.Title = "product" + id;
+            Image.ProductId = id;
+            Image.Url = url;
+            _context.ProductImages!.Add(Image);
+            _context.SaveChanges();
             return url;
         }
     }
