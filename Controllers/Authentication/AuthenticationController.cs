@@ -19,10 +19,12 @@ namespace TheBookStore.Controllers.Authentication
         public async Task<IActionResult> SignUp(SignUpModel model)
         {
                var result =  await _accountRepo.SignUpAsync(model ,"User");
-                if(result.Succeeded)
+                if(result == null)
                 {
-                    return Ok(result);                
-                }else return NotFound("Email already Exist!");
+                    return NotFound("Email already Exist!");
+                }
+                return Ok(result);                
+                 
         }
         [Route("seedAdmin")]
         [HttpPost]

@@ -19,8 +19,8 @@ namespace TheBookStore.Controllers.Customer
             this.cartRepo = cartRepo;
             this.accountRepo = accountRepo;
         }
-        [HttpGet]
-        public async Task<IActionResult> getCartAsync(string username)
+        [HttpGet("username")]
+        public async Task<IActionResult> getCartAsync([FromHeader]string username)
         {
             ApplicationUser user = await accountRepo.GetUserAsync(username);
             if (user == null)

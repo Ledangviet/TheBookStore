@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Azure.Storage.Blobs;
 using Microsoft.EntityFrameworkCore;
 using TheBookStore.Data;
 using TheBookStore.Models;
@@ -55,22 +56,27 @@ namespace TheBookStore.Repository
             }          
         }
 
-        public async Task<string> UploadImageAsync(IFormFile file,int id)
+        public async Task<string> UploadImageAsync(IFormFile file, ProductModel model)
         {
-            string url = "";
-            if (file != null)
+            var product = _mapper.Map<Product>(model);
+            string connectionString = "DefaultEndpointsProtocol=https;AccountName=thebookimage;AccountKey=Hqg/obRKymKZhO3gB0MLGqSxfIV/EkRWLbBXo9bW3145iSaguoqBiXVG7W+agfCAOIJAbxzwIqT6+ASt38jQSg==;EndpointSuffix=core.windows.net";
+            string url = "https://thebookimage.blob.core.windows.net/productimg/";
+            BlobContainerClient blobContainerClient = new BlobContainerClient(connectionString, "productimg");          
+            using(var stream = new MemoryStream())
             {
-                string FileName = "product_" + id + ".png";
-                var path = Path.Combine(Directory.GetCurrentDirectory(), "Static/images", FileName);
-                var stream = new FileStream(path, FileMode.Create);
                 await file.CopyToAsync(stream);
-                 url = "Static/images/detail/" + FileName;
+                stream.Position = 0;
+                await blobContainerClient.DeleteBlobIfExistsAsync("product_" + product.Id);
+                await blobContainerClient.UploadBlobAsync("product_" + product.Id, stream);
             }
+            
             var Image = new ProductImage();
-            Image.Title = "product" + id;
-            Image.ProductId = id;
-            Image.Url = url;
+            Image.Title = "product" + product.Id;
+            Image.ProductId = product.Id;
+            Image.Url = url+ "product" + product.Id;
             _context.ProductImages!.Add(Image);
+            product.ImageUrl = url + "product" + product.Id;
+            _context.Products!.Update(product);
             _context.SaveChanges();
             return url;
         }

@@ -40,14 +40,13 @@ namespace TheBookStore.Controllers.Admin
             return product == null ? NotFound() : Ok(product);
         }
 
-        [HttpPost]
+        [HttpPost("add")]
         public async Task<IActionResult> AddNewProduct([FromForm] string datajson)
         {
             var model = JsonConvert.DeserializeObject<ProductModel>(datajson);
             try
             {
-                var newProductId = await _productRepo.AddProductAsync(model);
-                
+                var newProductId = await _productRepo.AddProductAsync(model);               
                 var product = await _productRepo.getProductAsync(newProductId);
                 return product == null ? NotFound() : Ok(product);
             }
@@ -57,14 +56,14 @@ namespace TheBookStore.Controllers.Admin
             }
         }
         [HttpPost("{id}")]
-        public async Task<IActionResult> AddProductImage(int id,[FromForm] IFormFile file)
+        public async Task<IActionResult> AddProductImage([FromHeader]int id,[FromForm]IFormFile file)
         {
             if(file!= null)
             {
                 var product = await _productRepo.getProductAsync(id);
                 if(product != null)
                 {
-                    var url = await _productRepo.UploadImageAsync(file, id);
+                    var url = await _productRepo.UploadImageAsync(file, product);
                     return Ok(url);
                 }
                 return NotFound("San pham khong ton tai!");         
