@@ -1,10 +1,12 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using TheBookStore.Models;
 using TheBookStore.Repository;
 
 namespace TheBookStore.Controllers.Admin
 {
+    
     [Route("api/[controller]")]
     [ApiController]
     public class CategoryController : ControllerBase
@@ -14,6 +16,7 @@ namespace TheBookStore.Controllers.Admin
         {
             _catRepo = catRepo;
         }
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         public async Task<IActionResult> AddCategory(CategoryModel model)
         {
@@ -27,7 +30,7 @@ namespace TheBookStore.Controllers.Admin
             {
                 return BadRequest();
             }
-        }
+        }       
         [HttpGet]
         public async Task<IActionResult> getAllCategory()
         {
@@ -40,6 +43,7 @@ namespace TheBookStore.Controllers.Admin
                 return BadRequest();
             }
         }
+        [Authorize(Roles = "Admin")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> deleteCategory(int id)
         {
@@ -48,6 +52,7 @@ namespace TheBookStore.Controllers.Admin
             await _catRepo.DeleteCategoryAsync(id);
             return Ok();
         }
+        [Authorize(Roles = "Admin")]
         [HttpGet("{id}")]
         public async Task<IActionResult> getCategoryById(int id)
         {

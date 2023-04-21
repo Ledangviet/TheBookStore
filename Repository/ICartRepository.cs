@@ -9,6 +9,7 @@ namespace TheBookStore.Repository
         public Task<List<CartModel>> getCartAsync(string userId);
         public Task<List<CartModel>> addToCartAsync(int productid , string userId);
         public Task<bool> deleteFromCartAsync(int productId , string userId);
+        public Task<bool> deleteProductFromCartAsync(int productid , string userId);
 
         public Task<InvoiceModel> exportInvoiceAsync(string userName);
         

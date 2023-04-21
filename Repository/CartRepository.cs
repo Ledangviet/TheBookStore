@@ -25,7 +25,6 @@ namespace TheBookStore.Repository
         public async Task<List<CartModel>> getCartAsync(string userId)
         {
             var listCart = await _context.Carts!.Where(cart => cart.ApplicationUserId == userId).ToListAsync();
-
             return _mapper.Map<List<CartModel>>(listCart);
         }
 
@@ -67,6 +66,7 @@ namespace TheBookStore.Repository
             {
                 return false;
             }
+            //Find all user's cart
             var cart = await _context.Carts!.FirstOrDefaultAsync(c => c.ApplicationUserId == userId && c.ProductId == productid);
             if (cart == null)
                 return false;
@@ -81,24 +81,42 @@ namespace TheBookStore.Repository
             _context.SaveChanges();
             return true;
         }
+        public async Task<bool> deleteProductFromCartAsync(int productid, string userId)
+        {
+            var product = await _context.Products!.FirstOrDefaultAsync(pr => pr.Id == productid);
+            if (product == null)
+            {
+                return false;
+            }
+            //Find user's product cart
+            var cart = await _context.Carts!.FirstOrDefaultAsync(c => c.ApplicationUserId == userId && c.ProductId == productid);
+            _context.Carts!.Remove(cart);
+            _context.SaveChanges();
+            return true;
+        }
 
         public async Task<InvoiceModel> exportInvoiceAsync(string userName)
         {
+            //get user
             ApplicationUser user = await accountRepo.GetUserAsync(userName);
             var listCartModel = await getCartAsync(user.Id);
             double totalPrice = 0;
+
+            //account total price
             foreach (var item in listCartModel)
             {
                 totalPrice += item.ProductPrice*item.Quantity;
             }
-            var order = new Order();
-            order.UserId = user.Id;
+            //export order 
+            var order = new Order();            
             order.UserName = user.Name;
-            order.ApplicationUser = user;
+            order.ApplicationUserId = user.Id;
             order.TotalPrice = totalPrice;
 
             _context.Orders!.Add(order);
             _context.SaveChanges();
+
+            //export order detail
             var listOrderDetail = new List<OrderDetail>();
             foreach(var item in listCartModel)
             {
@@ -114,11 +132,11 @@ namespace TheBookStore.Repository
             //Remove All Cart
             foreach(var item in listCartModel)
             {
-                var cart = _context.Carts.Where(e => e.ApplicationUserId == user.Id);
-                _context.Remove(cart);
-                _context.SaveChanges();
+                var cart = await _context.Carts!.FirstOrDefaultAsync(e => e.ApplicationUserId == user.Id);
+                _context.Carts!.Remove(cart);               
             }
-            
+            _context.SaveChanges();
+
             var invoiceModel = new InvoiceModel();
             invoiceModel.UserId = user.Id;
             invoiceModel.UserName = user.Name;

@@ -21,6 +21,7 @@ namespace TheBookStore.Controllers.Admin
             _productRepo = repo;
         }
 
+
         [HttpGet]
         public async Task<IActionResult> GetAllProducts()
         {
@@ -40,10 +41,10 @@ namespace TheBookStore.Controllers.Admin
             return product == null ? NotFound() : Ok(product);
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPost("add")]
-        public async Task<IActionResult> AddNewProduct([FromForm] string datajson)
+        public async Task<IActionResult> AddNewProduct(ProductModel model)
         {
-            var model = JsonConvert.DeserializeObject<ProductModel>(datajson);
             try
             {
                 var newProductId = await _productRepo.AddProductAsync(model);               
@@ -55,13 +56,14 @@ namespace TheBookStore.Controllers.Admin
                 return NotFound(ex);
             }
         }
+        [Authorize(Roles = "Admin")]
         [HttpPost("{id}")]
-        public async Task<IActionResult> AddProductImage([FromHeader]int id,[FromForm]IFormFile file)
+        public async Task<IActionResult> AddProductImage(int id,IFormFile file)
         {
             if(file!= null)
             {
                 var product = await _productRepo.getProductAsync(id);
-                if(product != null)
+                if (product != null)
                 {
                     var url = await _productRepo.UploadImageAsync(file, product);
                     return Ok(url);
@@ -71,6 +73,7 @@ namespace TheBookStore.Controllers.Admin
             return NotFound("File khong ton tai!");
             
         }
+        [Authorize(Roles = "Admin")]
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateProductById(int id, ProductModel model)
         {
@@ -82,11 +85,12 @@ namespace TheBookStore.Controllers.Admin
             return Ok();
 
         }
+        [Authorize(Roles = "Admin")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteProduct(int id)
         {
-            var product = await _productRepo.getProductAsync(id);
-            if (product == null) return NotFound();
+            //var product = await _productRepo.getProductAsync(id);
+            //if (product == null) return NotFound();
             await _productRepo.DeleteProductAsync(id);
             return Ok();
         }

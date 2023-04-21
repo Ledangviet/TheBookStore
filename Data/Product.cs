@@ -18,7 +18,10 @@ namespace TheBookStore.Data
         public double Price { get; set; }
         [Range (0, 100)]
         public int Quantity { get; set; }
-        public string ImageUrl { get; set; } = "";
-        public string Category { get; set; } = "";
+        public string ImageUrl { get; set; } = string.Empty;
+        public string Category { get; set; } = string.Empty;
+        public string Author { get ; set; } = string.Empty;
+
+        public Boolean IsMeta { get; set; } = false;
     }
 }

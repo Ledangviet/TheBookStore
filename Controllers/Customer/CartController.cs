@@ -44,7 +44,7 @@ namespace TheBookStore.Controllers.Customer
         }
 
         [HttpPost("remove/username")]
-        public async Task<IActionResult> removeFromCart([FromHeader] string username , int productId)
+        public async Task<IActionResult> removeOneFromCart([FromHeader] string username , int productId)
         {
             ApplicationUser user = await accountRepo.GetUserAsync(username);
             if (user == null)
@@ -56,6 +56,20 @@ namespace TheBookStore.Controllers.Customer
                 return Ok(await cartRepo.getCartAsync(user.Id));
             }
             return BadRequest();        
+        }
+        [HttpPost("removeall/username")]
+        public async Task<IActionResult> removeAllFromCart([FromHeader] string username, int productId)
+        {
+            ApplicationUser user = await accountRepo.GetUserAsync(username);
+            if (user == null)
+            {
+                return NotFound("Nguoi dung khong ton tai!");
+            }
+            if (await cartRepo.deleteProductFromCartAsync(productId, user.Id) == true)
+            {
+                return Ok(await cartRepo.getCartAsync(user.Id));
+            }
+            return BadRequest("Repo fail");
         }
         [HttpPost("Order")]
         public async Task<IActionResult> orderCart([FromHeader] string username)

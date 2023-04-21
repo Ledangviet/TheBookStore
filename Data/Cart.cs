@@ -19,9 +19,6 @@ namespace TheBookStore.Data
         public string ApplicationUserId { get; set; }
         [ForeignKey("ApplicationUserId")]
         [ValidateNever]
-
-
-
         public ApplicationUser ApplicationUser { get; set; }
 
         

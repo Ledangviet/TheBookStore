@@ -59,9 +59,9 @@ namespace TheBookStore.Repository
         public async Task<string> UploadImageAsync(IFormFile file, ProductModel model)
         {
             var product = _mapper.Map<Product>(model);
-            string connectionString = "DefaultEndpointsProtocol=https;AccountName=thebookimage;AccountKey=Hqg/obRKymKZhO3gB0MLGqSxfIV/EkRWLbBXo9bW3145iSaguoqBiXVG7W+agfCAOIJAbxzwIqT6+ASt38jQSg==;EndpointSuffix=core.windows.net";
-            string url = "https://thebookimage.blob.core.windows.net/productimg/";
-            BlobContainerClient blobContainerClient = new BlobContainerClient(connectionString, "productimg");          
+            string connectionString = "DefaultEndpointsProtocol=https;AccountName=bookstoreimg;AccountKey=WNmrBAVUMgIZ0+gNaigHtm3DE5tEHhuy0uTB4Ze+tTndwdoNPBqGZwFU9iq7sq+gnOioXN9F4yXN+ASt/xKCwg==;EndpointSuffix=core.windows.net";
+            string url = "https://bookstoreimg.blob.core.windows.net/thebookimg/";
+            BlobContainerClient blobContainerClient = new BlobContainerClient(connectionString, "thebookimg");          
             using(var stream = new MemoryStream())
             {
                 await file.CopyToAsync(stream);
@@ -71,11 +71,11 @@ namespace TheBookStore.Repository
             }
             
             var Image = new ProductImage();
-            Image.Title = "product" + product.Id;
+            Image.Title = "product_" + product.Id;
             Image.ProductId = product.Id;
-            Image.Url = url+ "product" + product.Id;
+            Image.Url = url+ "/product_" + product.Id;
             _context.ProductImages!.Add(Image);
-            product.ImageUrl = url + "product" + product.Id;
+            product.ImageUrl = url + "product_" + product.Id;
             _context.Products!.Update(product);
             _context.SaveChanges();
             return url;

@@ -17,7 +17,7 @@ namespace TheBookStore.Data
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
-            SeedRoles(builder);
+            //SeedRoles(builder);
         }
         private static void SeedRoles(ModelBuilder builder)
         {

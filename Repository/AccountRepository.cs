@@ -24,11 +24,11 @@ namespace TheBookStore.Repository
         public AccountRepository(UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
             IConfiguration configuration, RoleManager<IdentityRole> roleManager)
-        { 
+        {
             this.userManager = userManager;
             this.signInManager = signInManager;
             this.configuration = configuration;
-            this.roleManager = roleManager;           
+            this.roleManager = roleManager;
         }
         public async Task<string> SignInAsync(SignInModel model)
         {
@@ -39,25 +39,26 @@ namespace TheBookStore.Repository
                 return null;
             }
             var user = await userManager.FindByEmailAsync(model.Email);
-            var userRole = await  userManager.GetRolesAsync(user);
-            if(userRole.Contains("Admin"))
+            var userRole = await userManager.GetRolesAsync(user);
+            if (userRole.Contains("Admin"))
             {
                 role = "Admin";
             }
-            var authClaims = new List<Claim> 
+            var authClaims = new List<Claim>
             {
                 new Claim(ClaimTypes.Email, model.Email),
                    new Claim(JwtRegisteredClaimNames.Jti ,Guid.NewGuid
-                   ().ToString())           
+                   ().ToString()),
+                   new Claim(ClaimTypes.Role, role),
+                   new Claim(ClaimTypes.Name , user.Name)
             };
-
             var authenKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JWT:Secret"]));
             var token = new JwtSecurityToken(
                 issuer: configuration["JWT:ValidIssuer"],
-                audience: role,
-                expires: DateTime.Now.AddMinutes(20),
+                audience: configuration["JWT:ValidAudience"],
+                expires: DateTime.Now.AddDays(1),
                 claims: authClaims,
-                signingCredentials: new SigningCredentials(authenKey,SecurityAlgorithms.HmacSha256Signature)
+                signingCredentials: new SigningCredentials(authenKey, SecurityAlgorithms.HmacSha256Signature)
                 );
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
@@ -68,7 +69,7 @@ namespace TheBookStore.Repository
             return user;
         }
 
-        public async Task<IdentityResult> SignUpAsync(SignUpModel model , string role)
+        public async Task<IdentityResult> SignUpAsync(SignUpModel model, string role)
         {
 
             var userExist = userManager.FindByEmailAsync(model.Email).Result;
@@ -84,7 +85,8 @@ namespace TheBookStore.Repository
                 IdentityResult userResult = await userManager.CreateAsync(newUser, model.Password);
                 IdentityResult roleresult = await userManager.AddToRoleAsync(newUser, role);
                 return userResult;
-            }else return null;    
-        }               
+            }
+            else return null;
+        }
     }
 }
