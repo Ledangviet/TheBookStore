@@ -45,7 +45,7 @@ namespace TheBookStore.Controllers.Authentication
             var token = await _accountRepo.SignInAsync(model);
             if (token != null)
             {
-                return Ok(token);
+                return Ok(new { accesstoken = token });
             }else return NotFound("Login Fail!");
 
         }
