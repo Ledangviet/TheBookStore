@@ -5,3 +5,4 @@
 #Role Based Authorization 
 #Using Json Web Token for Client Authentication
 #Code-first database with Entity Framework Core and SQL server
+#Save Image in the Azure Storage blob container
