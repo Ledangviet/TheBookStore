@@ -1,4 +1,5 @@
-﻿using TheBookStore.Models;
+﻿using NuGet.ProjectModel;
+using TheBookStore.Models;
 
 namespace TheBookStore.Repository
 {
@@ -8,5 +9,6 @@ namespace TheBookStore.Repository
         public Task<CategoryModel> getCategoryAsync(int id);
         public Task<int> AddCategoryAsync(CategoryModel model);
         public Task DeleteCategoryAsync(int id);
+        
     }
 }

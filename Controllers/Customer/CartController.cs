@@ -84,5 +84,17 @@ namespace TheBookStore.Controllers.Customer
 
 
         }
+        [HttpGet("Order")]
+        public async Task<IActionResult> getOrder([FromHeader] string username)
+        {
+            ApplicationUser user = await accountRepo.GetUserAsync(username);
+            if (user == null)
+            {
+                return NotFound("Nguoi dung khong ton tai!");
+            }
+            var list = await cartRepo.getListOrder(username);
+            return Ok(list);
+
+        }
     }
 }

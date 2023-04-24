@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Azure.Storage.Blobs;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Policy;
 using TheBookStore.Data;
 using TheBookStore.Models;
 
@@ -59,26 +60,38 @@ namespace TheBookStore.Repository
         public async Task<string> UploadImageAsync(IFormFile file, ProductModel model)
         {
             var product = _mapper.Map<Product>(model);
-            string connectionString = "DefaultEndpointsProtocol=https;AccountName=bookstoreimg;AccountKey=WNmrBAVUMgIZ0+gNaigHtm3DE5tEHhuy0uTB4Ze+tTndwdoNPBqGZwFU9iq7sq+gnOioXN9F4yXN+ASt/xKCwg==;EndpointSuffix=core.windows.net";
-            string url = "https://bookstoreimg.blob.core.windows.net/thebookimg/";
-            BlobContainerClient blobContainerClient = new BlobContainerClient(connectionString, "thebookimg");          
-            using(var stream = new MemoryStream())
+            //string connectionString = "DefaultEndpointsProtocol=https;AccountName=bookstoreimg;AccountKey=WNmrBAVUMgIZ0+gNaigHtm3DE5tEHhuy0uTB4Ze+tTndwdoNPBqGZwFU9iq7sq+gnOioXN9F4yXN+ASt/xKCwg==;EndpointSuffix=core.windows.net";
+
+            //BlobContainerClient blobContainerClient = new BlobContainerClient(connectionString, "thebookimg");          
+            //using(var stream = new MemoryStream())
+            //{
+            //    await file.CopyToAsync(stream);
+            //    stream.Position = 0;
+            //    await blobContainerClient.DeleteBlobIfExistsAsync("product_" + product.Id);
+            //    await blobContainerClient.UploadBlobAsync("product_" + product.Id, stream);
+            //}
+
+            var fileName = Path.GetFileName(file.FileName);
+
+            if (file != null)
             {
+                string FileName = "product-" + product.Id + ".png";
+                var path = Path.Combine(Directory.GetCurrentDirectory(), "Static/Images/", FileName);
+
+                var stream = new FileStream(path, FileMode.Create);
                 await file.CopyToAsync(stream);
-                stream.Position = 0;
-                await blobContainerClient.DeleteBlobIfExistsAsync("product_" + product.Id);
-                await blobContainerClient.UploadBlobAsync("product_" + product.Id, stream);
+                string url = "/Static/Images/" + FileName;
+                var Image = new ProductImage();
+                Image.Title = "product_" + product.Id;
+                Image.ProductId = product.Id;
+                Image.Url = url;
+                _context.ProductImages!.Add(Image);
+                product.ImageUrl = url;
+                _context.Products!.Update(product);
+                _context.SaveChanges();
+                return url;
             }
-            
-            var Image = new ProductImage();
-            Image.Title = "product_" + product.Id;
-            Image.ProductId = product.Id;
-            Image.Url = url+ "/product_" + product.Id;
-            _context.ProductImages!.Add(Image);
-            product.ImageUrl = url + "product_" + product.Id;
-            _context.Products!.Update(product);
-            _context.SaveChanges();
-            return url;
+            return null;
         }
     }
 }

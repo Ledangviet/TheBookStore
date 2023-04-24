@@ -14,6 +14,8 @@ namespace TheBookStore.Models
 
         public List<CartModel> Cart { get; set; }
 
+        public List<OrderDetail> OrderDetails { get; set; }
+
         public double TotalPrice { get; set; }
 
         public DateTime CreatedDate = DateTime.Now;

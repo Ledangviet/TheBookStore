@@ -12,6 +12,8 @@ namespace TheBookStore.Repository
         public Task<bool> deleteProductFromCartAsync(int productid , string userId);
 
         public Task<InvoiceModel> exportInvoiceAsync(string userName);
-        
+
+        public Task<List<Order>> getListOrder(string userName);
+
     }
 }

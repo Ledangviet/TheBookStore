@@ -24,20 +24,24 @@ namespace TheBookStore.Repository
         }
         public async Task<List<CartModel>> getCartAsync(string userId)
         {
+            //list and return all cart
             var listCart = await _context.Carts!.Where(cart => cart.ApplicationUserId == userId).ToListAsync();
             return _mapper.Map<List<CartModel>>(listCart);
         }
-
+        //this will add 1 product to user's cart
         public async Task<List<CartModel>> addToCartAsync(int productid, string userId)
         {
+            //find product?
             var product = await _context.Products!.FirstOrDefaultAsync(pr => pr.Id == productid);
             if (product == null)
             {
                 return null;
             }
+            //find user's cart of this product
             var cart = await _context.Carts!.FirstOrDefaultAsync(c => c.ApplicationUserId == userId && c.ProductId == productid);
             if (cart == null)
             {
+                //generate new cart and add to DB
                 Cart newcart = new Cart();
                 newcart.ProductId = productid;
                 newcart.ApplicationUserId = userId;
@@ -49,6 +53,7 @@ namespace TheBookStore.Repository
             }
             else
             {
+                //if cart already exist then plus 1
                 cart.Quantity += 1;
                 _context.Carts!.Update(cart);
                 _context.SaveChanges();
@@ -58,6 +63,7 @@ namespace TheBookStore.Repository
 
         }
 
+        //this will remove 1 product from the cart
         public async Task<bool> deleteFromCartAsync(int productid, string userId)
         {
             //Find Product
@@ -72,15 +78,18 @@ namespace TheBookStore.Repository
                 return false;
             if (cart.Quantity == 1)
             {
+                //if quantity = 1 then remove it
                 _context.Carts!.Remove(cart);
                 _context.SaveChanges();
                 return true;
             }
+            //if it above 1 then remove 1 product
             cart.Quantity -= 1;
             _context.Carts!.Update(cart);
             _context.SaveChanges();
             return true;
         }
+        //This will remove all of product of this User
         public async Task<bool> deleteProductFromCartAsync(int productid, string userId)
         {
             var product = await _context.Products!.FirstOrDefaultAsync(pr => pr.Id == productid);
@@ -88,7 +97,7 @@ namespace TheBookStore.Repository
             {
                 return false;
             }
-            //Find user's product cart
+            //Find user's product cart and remove all
             var cart = await _context.Carts!.FirstOrDefaultAsync(c => c.ApplicationUserId == userId && c.ProductId == productid);
             _context.Carts!.Remove(cart);
             _context.SaveChanges();
@@ -112,6 +121,7 @@ namespace TheBookStore.Repository
             order.UserName = user.Name;
             order.ApplicationUserId = user.Id;
             order.TotalPrice = totalPrice;
+            order.CreatedDate = DateTime.Now;
 
             _context.Orders!.Add(order);
             _context.SaveChanges();
@@ -132,8 +142,7 @@ namespace TheBookStore.Repository
             //Remove All Cart
             foreach(var item in listCartModel)
             {
-                var cart = await _context.Carts!.FirstOrDefaultAsync(e => e.ApplicationUserId == user.Id);
-                _context.Carts!.Remove(cart);               
+                await deleteProductFromCartAsync(item.ProductId, user.Id);               
             }
             _context.SaveChanges();
 
@@ -143,6 +152,14 @@ namespace TheBookStore.Repository
             invoiceModel.TotalPrice = totalPrice;
             invoiceModel.Cart = listCartModel;
             return invoiceModel;
+        }
+
+        public async Task<List<Order>> getListOrder(string userName)
+        {
+
+            ApplicationUser user = await accountRepo.GetUserAsync(userName);
+            var ListOrder = _context.Orders!.Where(e => e.ApplicationUserId == user.Id).ToList();    
+            return ListOrder;
         }
     }
 }
